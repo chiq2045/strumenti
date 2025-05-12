@@ -1,2 +1,2 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<h1>Welcome to Strumenti</h1>
+<p>Strumenti is a suite of apps aimed at helping music teachers with a number of tasks</p>
