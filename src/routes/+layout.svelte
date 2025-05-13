@@ -125,4 +125,4 @@
 	</nav>
 </header>
 
-<main class="px-4 pt-4">{@render children()}</main>
+<main class="p-4">{@render children()}</main>

@@ -2,6 +2,13 @@
 	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
+	let search = $state('');
+	$inspect(search);
+	let instruments = $derived(
+		data.instruments.filter((instrument) =>
+			JSON.stringify(instrument).toLowerCase().includes(search.toLowerCase())
+		)
+	);
 </script>
 
 <div class="flex flex-col gap-2">
@@ -26,7 +33,7 @@
 			</a>
 		</div>
 	</div>
-	<div role="separator" class="divider"></div>
+	<div role="separator" class="divider my-0"></div>
 	<div class="flex items-center justify-between gap-2">
 		<label class="input">
 			<svg
@@ -35,7 +42,7 @@
 				viewBox="0 0 24 24"
 				stroke-width="1.5"
 				stroke="currentColor"
-				class="size-6"
+				class="size-5"
 			>
 				<path
 					stroke-linecap="round"
@@ -43,11 +50,21 @@
 					d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
 				/>
 			</svg>
-			<input type="search" class="grow" placeholder="Search" />
+			<input
+				type="search"
+				class="grow"
+				placeholder="Search"
+				bind:value={search}
+				onchange={(e) => {
+					search = e.currentTarget.value;
+				}}
+			/>
 		</label>
 	</div>
 	{#if data.instruments.length === 0}
-		<span>No instruments</span>
+		<span class="flex justify-center pt-2 text-xl">No instruments</span>
+	{:else if instruments.length === 0}
+		<span class="flex justify-center pt-2 text-xl">No instruments matching filters</span>
 	{:else}
 		<table class="table">
 			<thead>
@@ -60,7 +77,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each data.instruments as instrument}
+				{#each instruments as instrument}
 					<tr>
 						<th class="text-center">{instrument.inventory_number}</th>
 						<td class="text-left">{instrument.instrument_type}</td>
