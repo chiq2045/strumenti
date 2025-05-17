@@ -16,15 +16,7 @@ export const api = {
 		await db.query({
 			instruments: {
 				$: {
-					fields: [
-						'id',
-						'category',
-						'instrument_type',
-						'description',
-						'notes',
-						'score',
-						'inventory_number'
-					]
+					fields: ['id', 'category', 'name', 'description', 'notes', 'score', 'inventory_number']
 				}
 			}
 		}),
@@ -51,6 +43,6 @@ export const api = {
 			db.tx.instruments[updatedId].update({ ...instrument, updated_date: new Date().toISOString() })
 		]);
 	},
-	deleteInstrument: async (instrumentId: string) =>
-		await db.transact([db.tx.instruments[instrumentId].delete()])
+	deleteInstruments: async (instrumentIds: string[]) =>
+		await db.transact(instrumentIds.map((v) => db.tx.instruments[v].delete()))
 };

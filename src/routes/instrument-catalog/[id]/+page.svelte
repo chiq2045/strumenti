@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DeleteModal from '../delete-modal.svelte';
 	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
@@ -6,74 +7,104 @@
 	let category = $state(instrument?.category ?? '');
 	let instrumentType = $state(instrument?.instrument_type ?? '');
 	let instrumentName = $state(instrument?.name ?? '');
-	let score = $state((instrument?.score ?? 3) * 2);
+	let showModal = $state(false);
+	const closeModal = () => {
+		showModal = false;
+	};
 </script>
 
+<DeleteModal bind:showModal>
+	{#snippet header()}
+		<h2>Delete Instrument</h2>
+	{/snippet}
+	<p>Do you want to delete this instrument?</p>
+	{#snippet actions()}
+		<form method="post" action="/instrument-catalog?/delete">
+			<input hidden name="ids" value={instrument.id} />
+			<button class="btn btn-neutral" onclick={closeModal}>No</button>
+			<button class="btn btn-error" type="submit" onclick={closeModal}>Yes</button>
+		</form>
+	{/snippet}
+</DeleteModal>
 <div class="flex flex-col gap-2">
-	<div>
-		<h1 class="text-lg">Instrument Information</h1>
-		<p class="text-sm">You can edit the instrument information on this page</p>
+	<div class="flex justify-between gap-2">
+		<div>
+			<h1 class="text-lg">Instrument Information</h1>
+			<p class="text-sm">You can edit the instrument information on this page</p>
+		</div>
+		<button
+			class="btn btn-secondary"
+			onclick={() => {
+				showModal = true;
+			}}
+		>
+			Delete
+		</button>
 	</div>
 	<div class="divider"></div>
 	{#if Boolean(instrument)}
-		<form method="post" class="flex flex-col items-center gap-2 sm:grid sm:grid-cols-6">
-			<label class="select w-full sm:col-span-3">
-				<span class="mr-3">Category<span class="text-red-600">*</span></span>
-				<select
-					name="category"
-					class="validator select"
-					bind:value={category}
-					onchange={(e) => {
-						category = e.currentTarget.value;
-						instrumentType = '';
-					}}
-					required
-				>
-					{#each data.categoryOptions as option}
-						<option value={option.value}>{option.label}</option>
-					{/each}
-				</select>
+		<form method="post" class="flex flex-col gap-2 sm:grid sm:grid-cols-6">
+			<div class="w-full sm:col-span-3">
+				<label class="select w-full">
+					<span class="mr-3">Category<span class="text-red-600">*</span></span>
+					<select
+						name="category"
+						class="validator select"
+						bind:value={category}
+						onchange={(e) => {
+							category = e.currentTarget.value;
+							instrumentType = '';
+						}}
+						required
+					>
+						{#each data.categoryOptions as option}
+							<option value={option.value}>{option.label}</option>
+						{/each}
+					</select>
+				</label>
 				<div class="validator-hint">Select a category</div>
-			</label>
-			<label class="select w-full sm:col-span-3">
-				<span class="mr-3">Instrument<span class="text-red-600">*</span></span>
-				<select
-					name="instrument_type"
-					class="validator select"
-					bind:value={instrumentType}
-					onchange={(e) => {
-						instrumentType = e.currentTarget.value;
-						if (!instrumentName) {
-							instrumentName = e.currentTarget.value;
-						}
-					}}
-					required
-				>
-					{#if category === 'Woodwind'}
-						{#each data.woodwindOptions as option}
-							<option value={option.value}>{option.label}</option>
-						{/each}
-					{:else if category === 'Percussion'}
-						{#each data.percussionOptions as option}
-							<option value={option.value}>{option.label}</option>
-						{/each}
-					{:else if category === 'Brass'}
-						{#each data.brassOptions as option}
-							<option value={option.value}>{option.label}</option>
-						{/each}
-					{:else if category === 'Other'}
-						{#each data.otherOptions as option}
-							<option value={option.value}>{option.label}</option>
-						{/each}
-					{/if}
-				</select>
+			</div>
+			<div class="w-full sm:col-span-3">
+				<label class="select w-full">
+					<span class="mr-3">Instrument<span class="text-red-600">*</span></span>
+					<select
+						name="instrument_type"
+						class="validator select"
+						bind:value={instrumentType}
+						onchange={(e) => {
+							instrumentType = e.currentTarget.value;
+							if (!instrumentName) {
+								instrumentName = e.currentTarget.value;
+							}
+						}}
+						required
+					>
+						{#if category === 'Woodwind'}
+							{#each data.woodwindOptions as option}
+								<option value={option.value}>{option.label}</option>
+							{/each}
+						{:else if category === 'Percussion'}
+							{#each data.percussionOptions as option}
+								<option value={option.value}>{option.label}</option>
+							{/each}
+						{:else if category === 'Brass'}
+							{#each data.brassOptions as option}
+								<option value={option.value}>{option.label}</option>
+							{/each}
+						{:else if category === 'Other'}
+							{#each data.otherOptions as option}
+								<option value={option.value}>{option.label}</option>
+							{/each}
+						{/if}
+					</select>
+				</label>
 				<div class="validator-hint">Select an appropriate instrument type</div>
-			</label>
+			</div>
 			<label class="input w-full sm:col-span-3">
 				<span>Name</span>
 				<input
 					type="text"
-					class="validator input"
+					class="input"
 					placeholder={instrumentName}
 					name="name"
 					bind:value={instrumentName}
@@ -82,33 +113,33 @@
 					}}
 				/>
 			</label>
-			<label
-				class="border-base-300 flex w-full items-center gap-3 rounded-lg border-1 p-2 sm:col-span-3"
-			>
-				<span class="text-sm">Score<span class="text-red-600">*</span></span>
-				<div class="w-full">
+			<div class="w-full sm:col-span-3">
+				<label class="input w-full">
+					<span aria-hidden={true}>Inventory #<span class="text-red-600">*</span></span>
+					<span class="sr-only">Inventory Number</span>
 					<input
-						type="range"
-						min="0"
-						max="10"
-						class="validator range range-sm w-full"
-						placeholder={instrumentName}
-						name="score"
+						name="inventory_number"
+						value={instrument.inventory_number}
+						class="input validator"
 						required
-						bind:value={score}
-						onchange={(e) => {
-							score = parseInt(e.currentTarget.value);
-						}}
 					/>
-					<div class="flex w-full justify-between px-2.5">
-						<span>0</span>
-						<span>1</span>
-						<span>2</span>
-						<span>3</span>
-						<span>4</span>
-						<span>5</span>
-					</div>
-				</div>
+				</label>
+				<div class="validator-hint">Inventory number is required</div>
+			</div>
+			<label class="input w-full sm:col-span-3">
+				<span aria-hidden={true}>Serial #</span>
+				<span class="sr-only">Serial Number</span>
+				<input name="serial_number" value={instrument.serial_number} class="input" />
+			</label>
+			<label class="input w-full sm:col-span-3">
+				<span aria-hidden={true}># of instruments</span>
+				<span class="sr-only">Number of Instruments</span>
+				<input
+					name="number_of_instruments"
+					value={instrument.number_of_instruments ?? 0}
+					type="number"
+					class="input"
+				/>
 			</label>
 			<label class="textarea w-full sm:col-span-3">
 				<span>Description</span>
@@ -119,32 +150,33 @@
 				<span>Notes</span>
 				<textarea name="notes" value={instrument.notes} class="textarea w-full"></textarea>
 			</label>
-			<label class="textarea w-full sm:col-span-2">
-				<span aria-hidden={true}>Inventory #<span class="text-red-600">*</span></span>
-				<span class="sr-only">Inventory Number</span>
-				<input
-					name="inventory_number"
-					value={instrument.inventory_number}
-					class="input validator w-full"
-					required
-				/>
-				<div class="validator-hint">Inventory number is required</div>
+			<label class="grid w-full grid-cols-subgrid items-center gap-2 sm:col-span-6">
+				<div
+					class="border-base-300 rounded-lg border-1 p-2 sm:col-span-4 sm:col-start-2 lg:col-span-2 lg:col-start-3"
+				>
+					<span class="text-sm">Score<span class="text-red-600">*</span></span>
+					<div class="w-full">
+						<input
+							type="range"
+							min="0"
+							max="10"
+							class="validator range range-sm"
+							placeholder={instrumentName}
+							name="score"
+							required
+						/>
+						<div class="flex w-full justify-between px-2.5">
+							<span>0</span>
+							<span>1</span>
+							<span>2</span>
+							<span>3</span>
+							<span>4</span>
+							<span>5</span>
+						</div>
+					</div>
+				</div>
 			</label>
-			<label class="textarea w-full sm:col-span-2">
-				<span aria-hidden={true}>Serial #</span>
-				<span class="sr-only">Serial Number</span>
-				<input name="serial_number" value={instrument.serial_number} class="input w-full" />
-			</label>
-			<label class="textarea w-full sm:col-span-2">
-				<span aria-hidden={true}># of instruments</span>
-				<span class="sr-only">Number of Instruments</span>
-				<input
-					name="number_of_instruments"
-					value={instrument.number_of_instruments ?? 0}
-					type="number"
-					class="input w-full"
-				/>
-			</label>
+			<div class="divider my-2 basis-full sm:col-span-6"></div>
 			<div class="flex basis-full items-center justify-between gap-2 sm:col-span-6">
 				<a class="btn btn-accent" href="/instrument-catalog">Back to List</a>
 				<div>
