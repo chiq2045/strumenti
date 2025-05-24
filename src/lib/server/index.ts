@@ -1,9 +1,7 @@
 import { INSTANT_APP_ADMIN_TOKEN, INSTANT_APP_ID } from '$env/static/private';
-import { id, init, type InstaQLEntity } from '@instantdb/admin';
-import schema, { type AppSchema } from '../../../instant.schema';
-
-type Entity<T extends keyof AppSchema['entities']> = InstaQLEntity<AppSchema, T>;
-type EntityWithoutId<T extends keyof AppSchema['entities']> = Omit<Entity<T>, 'id'>;
+import { id, init } from '@instantdb/admin';
+import schema from '../../../instant.schema';
+import type { Entity, EntityWithoutId } from '$lib';
 
 const db = init({
 	appId: INSTANT_APP_ID,
@@ -20,6 +18,7 @@ export const api = {
 				}
 			}
 		}),
+	getAllInstrumentData: async () => await db.query({ instruments: {} }),
 	getInstrument: async (instrumentId: string) =>
 		await db.query({
 			instruments: {
