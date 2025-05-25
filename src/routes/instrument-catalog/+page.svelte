@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { SvelteSet } from 'svelte/reactivity';
 	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
@@ -43,7 +42,7 @@
 <div class="flex flex-col gap-2">
 	<div class="flex items-center justify-between gap-2">
 		<div class="flex items-center gap-2">
-			<h1>Instrument List</h1>
+			<h1 class="text-lg font-bold">Instrument List</h1>
 			<div class="badge badge-soft badge-accent">{data.instruments.length}</div>
 		</div>
 		<div>
@@ -116,7 +115,7 @@
 	{:else}
 		<form>
 			<ul class="list gap-1 md:hidden">
-				{#each filteredInstruments as instrument, index}
+				{#each filteredInstruments as instrument}
 					<li class={`list-row ${getColor(instrument.category)} shadow-sm`}>
 						<div class="flex w-20 flex-col items-center justify-center gap-2">
 							<div class="font-bold">{instrument.inventory_number}</div>
