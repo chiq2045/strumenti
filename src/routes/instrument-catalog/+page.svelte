@@ -1,14 +1,9 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import Filters from './filters.svelte';
 
 	const { data }: PageProps = $props();
 	let search = $state('');
-	let filteredInstruments = $derived(
-		data.instruments.filter((instrument) => {
-			const { id, ...v } = instrument;
-			return JSON.stringify(v).toLowerCase().includes(search.toLowerCase());
-		})
-	);
 	const getColor = (category?: string) => {
 		switch (category?.toLowerCase()) {
 			case 'woodwind':
@@ -21,13 +16,29 @@
 				return 'bg-base-100';
 		}
 	};
+	let openFilters = $state(false);
+	const columnOptions = [
+		{ key: 'Inventory Number', value: '#' },
+		{ key: 'Instrument Type', value: 'type' },
+		{ key: 'Description', value: 'description' },
+		{ key: 'Notes', value: 'notes' },
+		{ key: 'Score', value: 'score' }
+	];
+	const categoryOptions = ['Woodwind', 'Percussion', 'Brass', 'Other'];
+	let visibleColumns = $state(columnOptions.map((v) => v.value));
+	let filteredCategories = $state(categoryOptions);
+	let filteredInstruments = $derived(
+		data.instruments
+			.filter((instrument) => {
+				const { id, ...v } = instrument;
+				return JSON.stringify(v).toLowerCase().includes(search.toLowerCase());
+			})
+			.filter((instrument) => filteredCategories.includes(instrument.category!))
+	);
 </script>
 
 {#snippet viewInstrumentDetailsButton(id: string)}
-	<a
-		href={`/instrument-catalog/${id}`}
-		class="btn btn-accent btn-xs btn-outline btn-circle shadow-sm"
-	>
+	<a href={`/instrument-catalog/${id}`} class="btn btn-neutral btn-xs btn-circle shadow-sm">
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
 			<path
 				fill-rule="evenodd"
@@ -43,7 +54,7 @@
 	<div class="flex items-center justify-between gap-2">
 		<div class="flex items-center gap-2">
 			<h1 class="text-lg font-bold">Instrument List</h1>
-			<div class="badge badge-soft badge-accent">{data.instruments.length}</div>
+			<div class="badge badge-accent">{data.instruments.length}</div>
 		</div>
 		<div>
 			<a href="/instrument-catalog/new" class="btn btn-primary">
@@ -63,6 +74,13 @@
 	</div>
 	<div role="separator" class="divider my-0"></div>
 	<div class="flex items-center justify-between gap-2">
+		<Filters
+			bind:open={openFilters}
+			{columnOptions}
+			bind:visibleColumns
+			{categoryOptions}
+			bind:filteredCategories
+		/>
 		<label class="input">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -89,7 +107,7 @@
 			/>
 		</label>
 		<div>
-			<a href="/instrument-catalog/print" class="btn btn-accent btn-soft">
+			<a href="/instrument-catalog/print" class="btn btn-accent">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
@@ -139,26 +157,74 @@
 			<table class="table border-separate border-spacing-x-0 border-spacing-y-1 max-md:hidden">
 				<thead>
 					<tr class="bg-base-200">
-						<th class="w-15/100" abbr="Inventory Number">#</th>
-						<th class="w-15/100 text-left">Instrument</th>
-						<th class="w-30/100 text-left">Description</th>
-						<th class="w-30/100 text-left">Notes</th>
-						<th class="w-10/100 text-right">Score</th>
+						{#if visibleColumns.includes('#')}
+							<th class="w-15/100" abbr="Inventory Number">#</th>
+						{/if}
+						{#if visibleColumns.includes('type')}
+							<th class="w-15/100 text-left">Instrument</th>
+						{/if}
+						{#if visibleColumns.includes('description')}
+							<th class="w-30/100 text-left">Description</th>
+						{/if}
+						{#if visibleColumns.includes('notes')}
+							<th class="w-30/100 text-left">Notes</th>
+						{/if}
+						{#if visibleColumns.includes('score')}
+							<th class="w-10/100 text-right">Score</th>
+						{/if}
 					</tr>
 				</thead>
 				<tbody>
 					{#each filteredInstruments as instrument}
 						<tr class={getColor(instrument.category)}>
-							<th class="">
-								{@render viewInstrumentDetailsButton(instrument.id)}
-								<span class="pl-1">
-									{instrument.inventory_number}
-								</span>
-							</th>
-							<td class="text-left">{instrument.name}</td>
-							<td class="text-left whitespace-pre-wrap">{instrument.description}</td>
-							<td class="text-left whitespace-pre-wrap">{instrument.notes}</td>
-							<td class="text-right">{instrument.score}</td>
+							{#if visibleColumns.includes('#')}
+								<th>
+									{@render viewInstrumentDetailsButton(instrument.id)}
+									<span class="pl-1">
+										{instrument.inventory_number}
+									</span>
+								</th>
+							{/if}
+							{#if visibleColumns.includes('type')}
+								<td class="text-left">
+									{#if !visibleColumns.includes('#')}
+										{@render viewInstrumentDetailsButton(instrument.id)}
+									{/if}
+									<span class="pl-1">
+										{instrument.name}
+									</span>
+								</td>
+							{/if}
+							{#if visibleColumns.includes('description')}
+								<td class="text-left whitespace-pre-wrap">
+									{#if !visibleColumns.includes('#') && !visibleColumns.includes('type')}
+										{@render viewInstrumentDetailsButton(instrument.id)}
+									{/if}
+									<span class="pl-1">
+										{instrument.description}
+									</span>
+								</td>
+							{/if}
+							{#if visibleColumns.includes('notes')}
+								<td class="text-left whitespace-pre-wrap">
+									{#if !visibleColumns.includes('#') && !visibleColumns.includes('type') && !visibleColumns.includes('description')}
+										{@render viewInstrumentDetailsButton(instrument.id)}
+									{/if}
+									<span class="pl-1">
+										{instrument.notes}
+									</span>
+								</td>
+							{/if}
+							{#if visibleColumns.includes('score')}
+								<td class="text-right">
+									{#if !visibleColumns.includes('#') && !visibleColumns.includes('type') && !visibleColumns.includes('description') && !visibleColumns.includes('notes')}
+										{@render viewInstrumentDetailsButton(instrument.id)}
+									{/if}
+									<span class="pl-1">
+										{instrument.score}
+									</span>
+								</td>
+							{/if}
 						</tr>
 					{/each}
 				</tbody>

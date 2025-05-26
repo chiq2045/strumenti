@@ -3,6 +3,6 @@
 @plugin '@tailwindcss/typography';
 @plugin 'daisyui' {
 	themes:
-		bumblebee --default,
+		cupcake --default,
 		sunset --prefersdark;
 }
