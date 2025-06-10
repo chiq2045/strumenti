@@ -129,7 +129,7 @@
 			</div>
 			<label class="select w-full sm:col-span-2">
 				<span class="mr-3">Score<span class="text-red-600">*</span></span>
-				<select class="select w-full" name="score" required value={3}>
+				<select class="select w-full" name="score" required value={instrument.score}>
 					{#each scoreValues as option}
 						<option value={option}>{option}</option>
 					{/each}
