@@ -35,6 +35,27 @@
 			})
 			.filter((instrument) => filteredCategories.includes(instrument.category!))
 	);
+	let openSort = $state(false);
+	const SortDirection = {
+		ascending: 'ascending',
+		descending: 'descending'
+	};
+	const SortBy = {
+		dateAdded: 0,
+		scoreOrder: 1,
+		category: 2,
+		inventoryNumber: 3
+	};
+	const sortOptions = [
+		{ key: 'Date Added', value: SortBy.dateAdded },
+		{ key: 'Score Order', value: SortBy.scoreOrder },
+		{ key: 'Category', value: SortBy.category },
+		{ key: 'Inventory Number', value: SortBy.inventoryNumber }
+	];
+	let currentSort = $state<{
+		sortBy: (typeof SortBy)[keyof typeof SortBy];
+		sortDirection: (typeof SortDirection)[keyof typeof SortDirection];
+	}>({ sortBy: SortBy.dateAdded, sortDirection: SortDirection.ascending });
 </script>
 
 {#snippet viewInstrumentDetailsButton(id: string)}
@@ -81,6 +102,47 @@
 			{categoryOptions}
 			bind:filteredCategories
 		/>
+		<!-- <details class="dropdown" open={openSort}>
+			<summary class="btn btn-secondary btn-wide">
+				Sort
+				{#if openSort}
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-6"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+					</svg>
+				{:else}
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-6"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+					</svg>
+				{/if}
+			</summary>
+			<div
+				class="dropdown-content bg-base-100 border-base-300 rounded-box flex gap-2 border p-4 shadow-sm"
+			>
+				<fieldset class="fieldset border-base-300 rounded-box border p-4">
+					<legend class="fieldset-legend">Sort Instruments</legend>
+					{#each sortOptions as option}
+						<label class="label">
+							<input type="radio" class="radio radio-secondary radio-sm" value={option.value} />
+							{option.key}
+						</label>
+					{/each}
+				</fieldset>
+			</div>
+		</details> -->
 		<label class="input">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"

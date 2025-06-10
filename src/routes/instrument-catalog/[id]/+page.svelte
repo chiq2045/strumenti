@@ -11,6 +11,7 @@
 	const closeModal = () => {
 		showModal = false;
 	};
+	const scoreValues = Array.from({ length: 11 }, (_, i) => i / 2);
 </script>
 
 <DeleteModal bind:showModal>
@@ -100,7 +101,7 @@
 				</label>
 				<div class="validator-hint">Select an appropriate instrument type</div>
 			</div>
-			<label class="input w-full sm:col-span-3">
+			<label class="input w-full sm:col-span-2">
 				<span>Name</span>
 				<input
 					type="text"
@@ -113,7 +114,7 @@
 					}}
 				/>
 			</label>
-			<div class="w-full sm:col-span-3">
+			<div class="w-full sm:col-span-2">
 				<label class="input w-full">
 					<span aria-hidden={true}>Inventory #<span class="text-red-600">*</span></span>
 					<span class="sr-only">Inventory Number</span>
@@ -126,6 +127,14 @@
 				</label>
 				<div class="validator-hint">Inventory number is required</div>
 			</div>
+			<label class="select w-full sm:col-span-2">
+				<span class="mr-3">Score<span class="text-red-600">*</span></span>
+				<select class="select w-full" name="score" required value={3}>
+					{#each scoreValues as option}
+						<option value={option}>{option}</option>
+					{/each}
+				</select>
+			</label>
 			<label class="input w-full sm:col-span-3">
 				<span aria-hidden={true}>Serial #</span>
 				<span class="sr-only">Serial Number</span>
@@ -149,32 +158,6 @@
 			<label class="textarea w-full sm:col-span-3">
 				<span>Notes</span>
 				<textarea name="notes" value={instrument.notes} class="textarea w-full"></textarea>
-			</label>
-			<label class="grid w-full grid-cols-subgrid items-center gap-2 sm:col-span-6">
-				<div
-					class="border-base-300 rounded-lg border-1 p-2 sm:col-span-4 sm:col-start-2 lg:col-span-2 lg:col-start-3"
-				>
-					<span class="text-sm">Score<span class="text-red-600">*</span></span>
-					<div class="w-full">
-						<input
-							type="range"
-							min="0"
-							max="10"
-							class="validator range range-sm"
-							placeholder={instrumentName}
-							name="score"
-							required
-						/>
-						<div class="flex w-full justify-between px-2.5">
-							<span>0</span>
-							<span>1</span>
-							<span>2</span>
-							<span>3</span>
-							<span>4</span>
-							<span>5</span>
-						</div>
-					</div>
-				</div>
 			</label>
 			<div class="divider my-2 basis-full sm:col-span-6"></div>
 			<div class="flex basis-full items-center justify-between gap-2 sm:col-span-6">
