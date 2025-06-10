@@ -16,6 +16,7 @@
 				return 'bg-base-100';
 		}
 	};
+	$inspect(data.instruments);
 	let openFilters = $state(false);
 	const columnOptions = [
 		{ key: 'Inventory Number', value: '#' },
@@ -26,15 +27,6 @@
 	];
 	const categoryOptions = ['Woodwind', 'Percussion', 'Brass', 'Other'];
 	let visibleColumns = $state(columnOptions.map((v) => v.value));
-	let filteredCategories = $state(categoryOptions);
-	let filteredInstruments = $derived(
-		data.instruments
-			.filter((instrument) => {
-				const { id, ...v } = instrument;
-				return JSON.stringify(v).toLowerCase().includes(search.toLowerCase());
-			})
-			.filter((instrument) => filteredCategories.includes(instrument.category!))
-	);
 	let openSort = $state(false);
 	const SortDirection = {
 		ascending: 'ascending',
@@ -52,10 +44,70 @@
 		{ key: 'Category', value: SortBy.category },
 		{ key: 'Inventory Number', value: SortBy.inventoryNumber }
 	];
+	const ScoreOrder = {
+		flute: 0,
+		oboe: 1,
+		basoon: 2,
+		clarinet: 3,
+		saxophone: 4,
+		cornet: 5,
+		trumpet: 6,
+		horn: 7,
+		trombone: 8,
+		baritone: 9,
+		tuba: 10
+		// timpany: 11,
+		// percussion: 12,
+		// other: 13
+	};
 	let currentSort = $state<{
 		sortBy: (typeof SortBy)[keyof typeof SortBy];
 		sortDirection: (typeof SortDirection)[keyof typeof SortDirection];
 	}>({ sortBy: SortBy.dateAdded, sortDirection: SortDirection.ascending });
+	let filteredCategories = $state(categoryOptions);
+	let instruments = $derived(
+		data.instruments
+			.filter((instrument) => {
+				const { id, ...v } = instrument;
+				return JSON.stringify(v).toLowerCase().includes(search.toLowerCase());
+			})
+			.filter((instrument) => filteredCategories.includes(instrument.category!))
+			.sort((a, b) => {
+				let returnValue = 0;
+				switch (currentSort.sortBy) {
+					case SortBy.category:
+						returnValue = a.category!.localeCompare(b.category!);
+						break;
+					case SortBy.inventoryNumber:
+						returnValue = a.inventory_number!.localeCompare(b.inventory_number!);
+						break;
+					case SortBy.scoreOrder: {
+						const aOrder = ScoreOrder[a.instrument_type as keyof typeof ScoreOrder] as
+							| number
+							| undefined;
+						const bOrder = ScoreOrder[b.instrument_type as keyof typeof ScoreOrder] as
+							| number
+							| undefined;
+						if (aOrder === bOrder) {
+							returnValue = 0;
+							break;
+						}
+						if (aOrder === undefined && bOrder !== undefined) {
+							returnValue = 1;
+							break;
+						}
+						if (aOrder !== undefined && bOrder === undefined) {
+							returnValue = -1;
+							break;
+						}
+						returnValue = aOrder! - bOrder!;
+					}
+					default:
+						returnValue = new Date(a.created_date!).valueOf() - new Date(b.created_date!).valueOf();
+				}
+				return returnValue * (currentSort.sortDirection === SortDirection.ascending ? 1 : -1);
+			})
+	);
 </script>
 
 {#snippet viewInstrumentDetailsButton(id: string)}
@@ -95,54 +147,105 @@
 	</div>
 	<div role="separator" class="divider my-0"></div>
 	<div class="flex items-center justify-between gap-2">
-		<Filters
-			bind:open={openFilters}
-			{columnOptions}
-			bind:visibleColumns
-			{categoryOptions}
-			bind:filteredCategories
-		/>
-		<!-- <details class="dropdown" open={openSort}>
-			<summary class="btn btn-secondary btn-wide">
-				Sort
-				{#if openSort}
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-6"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-					</svg>
-				{:else}
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-6"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-					</svg>
-				{/if}
-			</summary>
-			<div
-				class="dropdown-content bg-base-100 border-base-300 rounded-box flex gap-2 border p-4 shadow-sm"
-			>
-				<fieldset class="fieldset border-base-300 rounded-box border p-4">
-					<legend class="fieldset-legend">Sort Instruments</legend>
-					{#each sortOptions as option}
-						<label class="label">
-							<input type="radio" class="radio radio-secondary radio-sm" value={option.value} />
-							{option.key}
-						</label>
-					{/each}
-				</fieldset>
-			</div>
-		</details> -->
+		<div class="flex items-center gap-2">
+			<Filters
+				bind:open={openFilters}
+				{columnOptions}
+				bind:visibleColumns
+				{categoryOptions}
+				bind:filteredCategories
+			/>
+			<details class="dropdown" open={openSort}>
+				<summary class="btn btn-secondary btn-wide">
+					Sort by {Object.keys(SortBy)[Object.values(SortBy).indexOf(currentSort.sortBy)]}
+					{Object.keys(SortDirection)[
+						Object.values(SortDirection).indexOf(currentSort.sortDirection)
+					]}
+					{#if openSort}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="size-6"
+						>
+							<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+						</svg>
+					{:else}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="size-6"
+						>
+							<path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+						</svg>
+					{/if}
+				</summary>
+				<div
+					class="dropdown-content bg-base-100 border-base-300 rounded-box flex gap-2 border p-4 shadow-sm"
+				>
+					<fieldset class="fieldset border-base-300 rounded-box border p-4">
+						<legend class="fieldset-legend">Sort Instruments</legend>
+						{#each sortOptions as option}
+							<div class="flex items-center gap-2">
+								<button
+									class={`btn btn-neutral ${currentSort.sortBy === option.value ? 'btn-outline' : 'btn-dash'} btn-sm btn-circle`}
+									onclick={() => {
+										currentSort = {
+											sortBy: option.value,
+											sortDirection:
+												currentSort.sortDirection === SortDirection.descending ||
+												currentSort.sortBy !== option.value
+													? SortDirection.ascending
+													: SortDirection.descending
+										};
+									}}
+								>
+									{#if currentSort.sortDirection === SortDirection.ascending || currentSort.sortBy !== option.value}
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="1.5"
+											stroke="currentColor"
+											class="size-6"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
+											/>
+										</svg>
+										<span class="sr-only">Ascending</span>
+									{:else}
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="1.5"
+											stroke="currentColor"
+											class="size-6"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"
+											/>
+										</svg>
+										<span class="sr-only">Descending</span>
+									{/if}
+								</button>
+								{option.key}
+							</div>
+						{/each}
+					</fieldset>
+				</div>
+			</details>
+		</div>
 		<label class="input">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -190,12 +293,12 @@
 	</div>
 	{#if data.instruments.length === 0}
 		<span class="flex justify-center pt-2 text-xl">No instruments</span>
-	{:else if filteredInstruments.length === 0}
+	{:else if instruments.length === 0}
 		<span class="flex justify-center pt-2 text-xl">No instruments matching filters</span>
 	{:else}
 		<form>
 			<ul class="list gap-1 md:hidden">
-				{#each filteredInstruments as instrument}
+				{#each instruments as instrument}
 					<li class={`list-row ${getColor(instrument.category)} shadow-sm`}>
 						<div class="flex w-20 flex-col items-center justify-center gap-2">
 							<div class="font-bold">{instrument.inventory_number}</div>
@@ -237,7 +340,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each filteredInstruments as instrument}
+					{#each instruments as instrument}
 						<tr class={getColor(instrument.category)}>
 							{#if visibleColumns.includes('#')}
 								<th>

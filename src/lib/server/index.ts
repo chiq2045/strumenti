@@ -12,11 +12,7 @@ const db = init({
 export const api = {
 	getInstruments: async () =>
 		await db.query({
-			instruments: {
-				$: {
-					fields: ['id', 'category', 'name', 'description', 'notes', 'score', 'inventory_number']
-				}
-			}
+			instruments: {}
 		}),
 	getAllInstrumentData: async () => await db.query({ instruments: {} }),
 	getInstrument: async (instrumentId: string) =>
