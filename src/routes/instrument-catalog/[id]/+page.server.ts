@@ -58,7 +58,7 @@ export const actions: Actions = {
 			name: formData.get('name') as string,
 			notes: formData.get('notes') as string,
 			number_of_instruments: parseInt(formData.get('number_of_instruments') as string),
-			score: parseInt(formData.get('score') as string) / 2,
+			score: parseInt(formData.get('score') as string),
 			serial_number: formData.get('serial_number') as string
 		});
 		return redirect(303, '/instrument-catalog');
