@@ -45,20 +45,20 @@
 		{ key: 'Inventory Number', value: SortBy.inventoryNumber }
 	];
 	const ScoreOrder = {
-		flute: 0,
-		oboe: 1,
-		basoon: 2,
-		clarinet: 3,
-		saxophone: 4,
-		cornet: 5,
-		trumpet: 6,
-		horn: 7,
-		trombone: 8,
-		baritone: 9,
-		tuba: 10
-		// timpany: 11,
-		// percussion: 12,
-		// other: 13
+		Flute: 0,
+		Oboe: 1,
+		Basoon: 2,
+		Clarinet: 3,
+		AltoSaxophone: 4,
+		TenorSaxophone: 5,
+		Cornet: 6,
+		Trumpet: 7,
+		FrenchHorn: 8,
+		Trombone: 9,
+		Baritone: 10,
+		Tuba: 11,
+		Timpany: 12,
+		Percussion: 13
 	};
 	let currentSort = $state<{
 		sortBy: (typeof SortBy)[keyof typeof SortBy];
@@ -69,7 +69,11 @@
 		data.instruments
 			.filter((instrument) => {
 				const { id, ...v } = instrument;
-				return JSON.stringify(v).toLowerCase().includes(search.toLowerCase());
+				return JSON.stringify(
+					`${v.category}-${v.name}-${v.description}-${v.notes}-${v.score}-${v.inventory_number}`
+				)
+					.toLowerCase()
+					.includes(search.toLowerCase());
 			})
 			.filter((instrument) => filteredCategories.includes(instrument.category!))
 			.sort((a, b) => {
@@ -82,25 +86,13 @@
 						returnValue = a.inventory_number!.localeCompare(b.inventory_number!);
 						break;
 					case SortBy.scoreOrder: {
-						const aOrder = ScoreOrder[a.instrument_type as keyof typeof ScoreOrder] as
-							| number
-							| undefined;
-						const bOrder = ScoreOrder[b.instrument_type as keyof typeof ScoreOrder] as
-							| number
-							| undefined;
-						if (aOrder === bOrder) {
-							returnValue = 0;
-							break;
-						}
-						if (aOrder === undefined && bOrder !== undefined) {
-							returnValue = 1;
-							break;
-						}
-						if (aOrder !== undefined && bOrder === undefined) {
-							returnValue = -1;
-							break;
-						}
-						returnValue = aOrder! - bOrder!;
+						// @ts-ignore
+						const aOrder = ScoreOrder[a.instrument_type!] ?? 100;
+						// @ts-ignore
+						const bOrder = ScoreOrder[b.instrument_type!] ?? 100;
+						// console.log(b.instrument_type, aOrder, a.instrument_type, bOrder);
+						returnValue = aOrder - bOrder;
+						break;
 					}
 					default:
 						returnValue = new Date(a.created_date!).valueOf() - new Date(b.created_date!).valueOf();
@@ -108,6 +100,7 @@
 				return returnValue * (currentSort.sortDirection === SortDirection.ascending ? 1 : -1);
 			})
 	);
+	$inspect(currentSort);
 </script>
 
 {#snippet viewInstrumentDetailsButton(id: string)}
