@@ -9,7 +9,7 @@
 </script>
 
 <details class="dropdown" bind:open>
-	<summary class="btn btn-secondary btn-wide">
+	<summary class="btn btn-wide">
 		Filters
 		{#if open}
 			<svg
