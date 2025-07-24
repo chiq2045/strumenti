@@ -171,34 +171,38 @@
 		<span class="flex justify-center pt-2 text-xl">No instruments matching filters</span>
 	{:else}
 		<form>
-			<ul class="list gap-1 md:hidden">
+			<ul class="list gap-1 lg:hidden">
 				{#each instruments as instrument}
-					<li class={`list-row ${getColor(instrument.category)} shadow-sm`}>
-						<div class="flex w-20 flex-col items-center justify-center gap-2">
-							<div class="font-bold">{instrument.inventory_number}</div>
+					<li class={`list-row ${getColor(instrument.category)} flex items-center shadow-sm`}>
+						<div class="basis-1/8 font-bold break-normal">{instrument.inventory_number}</div>
+						<dl class="basis-3/4">
+							<div class="sm:flex sm:items-center sm:gap-2">
+								<dt class="sm:basis-1/4">Instrument</dt>
+								<dd class="">{instrument.name}</dd>
+							</div>
+							<div class="sm:flex sm:items-center sm:gap-2">
+								<dt class="sm:basis-1/4">Description</dt>
+								<dd class="">{instrument.description}</dd>
+							</div>
+							<div class="sm:flex sm:items-center sm:gap-2">
+								<dt class="sm:basis-1/4">Notes</dt>
+								<dd class="">{instrument.notes}</dd>
+							</div>
+							<div class="sm:flex sm:items-center sm:gap-2">
+								<dt class="sm:basis-1/4">Score</dt>
+								<dd class="">{instrument.score}</dd>
+							</div>
+						</dl>
+						<div class="flex basis-1/8 justify-end">
 							{@render viewInstrumentDetailsButton(instrument.id)}
-						</div>
-						<div>
-							<dl class="flex flex-row flex-wrap">
-								<dt class="basis-1/5">Instrument</dt>
-								<dd class="grow basis-4/5">{instrument.name}</dd>
-								<dt class="basis-1/5">Description</dt>
-								<dd class="grow basis-4/5 whitespace-pre-wrap">{instrument.description}</dd>
-								<dt class="basis-1/5">Notes</dt>
-								<dd class="grow basis-4/5 whitespace-pre-wrap">{instrument.notes}</dd>
-								<dt class="basis-1/5">Score</dt>
-								<dd class="grow basis-4/5">{instrument.score}</dd>
-							</dl>
 						</div>
 					</li>
 				{/each}
 			</ul>
-			<table class="table border-separate border-spacing-x-0 border-spacing-y-1 max-md:hidden">
+			<table class="table border-separate border-spacing-x-0 border-spacing-y-1 lg:block">
 				<thead>
 					<tr class="bg-base-200">
-						{#if visibleColumns.includes('#')}
-							<th class="w-15/100" abbr="Inventory Number">#</th>
-						{/if}
+						<th class="w-15/100" abbr="Inventory Number">#</th>
 						{#if visibleColumns.includes('type')}
 							<th class="w-15/100 text-left">Instrument</th>
 						{/if}
@@ -211,24 +215,21 @@
 						{#if visibleColumns.includes('score')}
 							<th class="w-10/100 text-right">Score</th>
 						{/if}
+						<th>
+							<span class="sr-only">Actions</span>
+						</th>
 					</tr>
 				</thead>
 				<tbody>
 					{#each instruments as instrument}
 						<tr class={getColor(instrument.category)}>
-							{#if visibleColumns.includes('#')}
-								<th>
-									{@render viewInstrumentDetailsButton(instrument.id)}
-									<span class="pl-1">
-										{instrument.inventory_number}
-									</span>
-								</th>
-							{/if}
+							<th>
+								<span class="pl-1">
+									{instrument.inventory_number}
+								</span>
+							</th>
 							{#if visibleColumns.includes('type')}
 								<td class="text-left">
-									{#if !visibleColumns.includes('#')}
-										{@render viewInstrumentDetailsButton(instrument.id)}
-									{/if}
 									<span class="pl-1">
 										{instrument.name}
 									</span>
@@ -236,9 +237,6 @@
 							{/if}
 							{#if visibleColumns.includes('description')}
 								<td class="text-left whitespace-pre-wrap">
-									{#if !visibleColumns.includes('#') && !visibleColumns.includes('type')}
-										{@render viewInstrumentDetailsButton(instrument.id)}
-									{/if}
 									<span class="pl-1">
 										{instrument.description}
 									</span>
@@ -246,9 +244,6 @@
 							{/if}
 							{#if visibleColumns.includes('notes')}
 								<td class="text-left whitespace-pre-wrap">
-									{#if !visibleColumns.includes('#') && !visibleColumns.includes('type') && !visibleColumns.includes('description')}
-										{@render viewInstrumentDetailsButton(instrument.id)}
-									{/if}
 									<span class="pl-1">
 										{instrument.notes}
 									</span>
@@ -256,14 +251,16 @@
 							{/if}
 							{#if visibleColumns.includes('score')}
 								<td class="text-right">
-									{#if !visibleColumns.includes('#') && !visibleColumns.includes('type') && !visibleColumns.includes('description') && !visibleColumns.includes('notes')}
-										{@render viewInstrumentDetailsButton(instrument.id)}
-									{/if}
 									<span class="pl-1">
 										{instrument.score}
 									</span>
 								</td>
 							{/if}
+							<td class="text-right">
+								<span class="pl-1">
+									{@render viewInstrumentDetailsButton(instrument.id)}
+								</span>
+							</td>
 						</tr>
 					{/each}
 				</tbody>

@@ -14,45 +14,39 @@
 
 <details class="dropdown" open={openSort}>
 	<summary class="btn btn-wide">
-		<div class="flex gap-2">
-			<span>
-				Sort by {sortOptions.find((option) => option.value === currentSort.sortBy)?.key}
-			</span>
-			<div>
-				{#if currentSort.sortDirection === SortDirection.ascending}
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-6"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M8.25 6.75 12 3m0 0 3.75 3.75M12 3v18"
-						/>
-					</svg>
-				{:else}
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-6"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M15.75 17.25 12 21m0 0-3.75-3.75M12 21V3"
-						/>
-					</svg>
-				{/if}
-				<span class="sr-only">{currentSort.sortDirection}</span>
-			</div>
-		</div>
+		{sortOptions.find((option) => option.value === currentSort.sortBy)?.key}
+		{#if currentSort.sortDirection === SortDirection.ascending}
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor"
+				class="size-6"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M8.25 6.75 12 3m0 0 3.75 3.75M12 3v18"
+				/>
+			</svg>
+		{:else}
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor"
+				class="size-6"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M15.75 17.25 12 21m0 0-3.75-3.75M12 21V3"
+				/>
+			</svg>
+		{/if}
+		<span class="sr-only">{currentSort.sortDirection}</span>
 		{#if openSort}
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
